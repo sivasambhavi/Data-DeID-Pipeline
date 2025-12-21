@@ -70,7 +70,7 @@ This project demonstrates proficiency in **Cloud Computing (AWS)**, **Big Data P
 3.  **PII Detection:**
     *   **Recursive Traversal:** The system will recursively traverse the DataFrame schema to identify PII even within nested `StructType` (nested tags) and `ArrayType` (repeated tags) fields.
     *   **Heuristic/Regex:** Detect patterns (Email, Phone, SSN) within leaf nodes.
-    *   **NLP/NER:** Use library (e.g., Presidio) wrapped in Spark UDFs to detect context-based PII. values. The Output will be a base64 encoded ciphertext.
+    *   **NLP/NER:** Use library (e.g., Presidio) wrapped in Spark UDFs to detect context-based PII.
 4.  **Encryption:** Apply AES encryption to the identified PII values. The Output will be a base64 encoded ciphertext.
 5.  **Output:** Write the masked (encrypted) DataFrame to **S3 in Parquet format**.
 6.  **Upload:** Save to `s3://<project-name>-masked/`.
@@ -84,7 +84,7 @@ This project demonstrates proficiency in **Cloud Computing (AWS)**, **Big Data P
 
 ---
 
-### 6.2 Technology Stack
+### 6.3 Technology Stack
 
 | Layer | Tools |
 |------|------|
@@ -139,4 +139,3 @@ This project demonstrates proficiency in **Cloud Computing (AWS)**, **Big Data P
 1.  **Round Trip:** Original (XML) -> Encrypt -> Parquet -> Decrypt -> Verify Match.
 2.  **Wrong Key:** Attempting to decrypt with an invalid key should fail/raise error.
 3.  **No PII:** Data un-modified.
-
