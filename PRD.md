@@ -20,7 +20,7 @@
 ## 2. Introduction
 
 ### Objective
-To design and implement a scalable, automated pipeline that ingests XML datasets from an AWS S3 bucket, accurately identifies Personally Identifiable Information (PII) within the data, and generates masked versions of the datasets in **Parquet format** back to a secure S3 location. The system must support **reversible encryption** (demasking) to restore original values for authorized users.
+To design and implement a scalable, automated pipeline that ingests **Healthcare XML datasets (simulating patient records)** from an AWS S3 bucket, accurately identifies **Protected Health Information (PHI)** within the data, and generates masked versions of the datasets in **Parquet format** back to a secure S3 location. The system must support **reversible encryption** (demasking) and adhere to **HIPAA Safe Harbor** de-identification principles.
 
 ### Personal Focus
 This project demonstrates proficiency in **Cloud Computing (AWS)**, **Big Data Processing (Spark)**, **Data Engineering**, **Cryptography/Security**, **Natural Language Processing**, and **Infrastructure as Code (IaC)**.
@@ -84,12 +84,13 @@ This project demonstrates proficiency in **Cloud Computing (AWS)**, **Big Data P
     *   **Heuristic/Regex:** Detect patterns (Email, Phone, SSN) within leaf nodes.
     *   **Heuristic/Regex:** Detect patterns within leaf nodes.
     *   **NLP/NER:** Use `Microsoft Presidio` wrapped in Spark UDFs.
-    *   **Target PII Entities:**
-        *   `PERSON` (Name) -> Presidio
-        *   `EMAIL_ADDRESS` -> Regex/Presidio
-        *   `PHONE_NUMBER` -> Regex/Presidio
+    *   **Target PHI Entities:**
+        *   `PATIENT_NAME` (Name) -> Presidio
+        *   `MRN` (Medical Record Number) -> Regex
         *   `SSN` -> Regex
-        *   `CREDIT_CARD` -> Regex/Presidio
+        *   `PHONE_NUMBER` -> Regex/Presidio
+        *   `EMAIL_ADDRESS` -> Regex/Presidio
+        *   `ADMISSION_DATE` -> Date Shifting (Optional/Advanced) or Masking
 4.  **Encryption:** Apply AES encryption to the identified PII values. The Output will be a base64 encoded ciphertext.
 5.  **Output:** Write the masked (encrypted) DataFrame to **S3 in Parquet format**.
 6.  **Upload:** Save to `s3://<project-name>-masked/`.

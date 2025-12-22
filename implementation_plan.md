@@ -34,9 +34,12 @@ This document outlines the step-by-step implementation plan for the Cloud-Native
 
 ## Phase 2: Data Ingestion (S3 & XML)
 
-- [ ] **Synthetic Data Generation**
-    - Create a script `generate_xml_data.py` using `Faker` to generate sample XML files with PII.
-    - Upload sample XMLs to the `raw` S3 bucket.
+- [ ] **Synthetic Data Generation Strategy**
+    - Create a script `generate_xml_data.py` using `Faker` and `faker_schema`.
+    - **Domain:** Generate **Healthcare/Clinical Data** (Patient Demographics, Encounters, Conditions).
+    - **Structure:** Simulate deeply nested XMLs similar to FHIR/HL7 (e.g., `<Patient><Name><Family>...</Family></Name>...</Patient>`).
+    - **Scale:** Ability to generate 1GB+ of XML data to stress-test EMR.
+    - **Negative Testing:** Function to inject "Bad Data" (malformed XML) to test DLQ logic.
 
 - [ ] **S3 Ingestion Module**
     - specific functions to list XML files in S3 bucket using `boto3`.

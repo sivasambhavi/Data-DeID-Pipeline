@@ -12,12 +12,13 @@
 - [ ] Generate and store Symmetric Encryption Key (Fernet) <!-- id: 16 -->
 
 ### Phase 2: Data & Ingestion
-- [ ] Create `generate_xml.py` to create synthetic XML data with PII <!-- id: 4 -->
+- [ ] Create `generate_xml.py` with `Faker` (Support 1GB+ **Healthcare Data**) <!-- id: 4 -->
+- [ ] Implement Bad Data injection logic (Corrupt XML) for DLQ testing <!-- id: 23 -->
 - [ ] Implement `s3_client.py` to list and manage S3 objects <!-- id: 5 -->
 - [ ] Implement Spark XML reader (verify `spark-xml` package dependency) <!-- id: 6 -->
 
 ### Phase 3: Processing (Spark - Encryption/Decryption)
-- [ ] Define PII detection patterns (Regex) <!-- id: 7 -->
+- [ ] Define **PHI** detection patterns (Regex for **MRN**, SSN) <!-- id: 7 -->
 - [ ] Create Spark UDF for Presidio/NLP detection <!-- id: 8 -->
 - [ ] Implement **Recursive Schema Traversal** to handle nested XML fields <!-- id: 19 -->
 - [ ] Implement `encrypt_data(df)` transformation logic using Key <!-- id: 9 -->
