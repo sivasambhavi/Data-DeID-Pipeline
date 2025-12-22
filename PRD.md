@@ -13,7 +13,7 @@
 To design and implement a scalable, automated pipeline that ingests XML datasets from an AWS S3 bucket, accurately identifies Personally Identifiable Information (PII) within the data, and generates masked versions of the datasets in **Parquet format** back to a secure S3 location. The system must support **reversible encryption** (demasking) to restore original values for authorized users.
 
 ### Personal Focus
-This project demonstrates proficiency in **Cloud Computing (AWS)**, **Big Data Processing (Spark)**, **Data Engineering**, **Cryptography/Security**, and **Natural Language Processing**.
+This project demonstrates proficiency in **Cloud Computing (AWS)**, **Big Data Processing (Spark)**, **Data Engineering**, **Cryptography/Security**, **Natural Language Processing**, and **Infrastructure as Code (IaC)**.
 
 ---
 
@@ -52,7 +52,9 @@ This project demonstrates proficiency in **Cloud Computing (AWS)**, **Big Data P
 
 ## 5. Constraints & Design Decisions
 
-*   **Input Format:** Supports `.xml` files only.
+*   **Input Format:** `.xml` files.
+    *   *Assumption:* XML is row-based (e.g., `<root><row><name>...</name></row>...</root>`).
+    *   *Complexity:* Supports nested tags (e.g., `<address><city>...</city></address>`) and arrays.
 *   **Output Format:** **Apache Parquet** (Columnar Storage).
 *   **Processing Engine:** **Apache Spark (PySpark)** for scalability.
 *   **Masking Strategy:** **Symmetric Encryption (AES)**.
@@ -70,7 +72,14 @@ This project demonstrates proficiency in **Cloud Computing (AWS)**, **Big Data P
 3.  **PII Detection:**
     *   **Recursive Traversal:** The system will recursively traverse the DataFrame schema to identify PII even within nested `StructType` (nested tags) and `ArrayType` (repeated tags) fields.
     *   **Heuristic/Regex:** Detect patterns (Email, Phone, SSN) within leaf nodes.
-    *   **NLP/NER:** Use library (e.g., Presidio) wrapped in Spark UDFs to detect context-based PII.
+    *   **Heuristic/Regex:** Detect patterns within leaf nodes.
+    *   **NLP/NER:** Use `Microsoft Presidio` wrapped in Spark UDFs.
+    *   **Target PII Entities:**
+        *   `PERSON` (Name) -> Presidio
+        *   `EMAIL_ADDRESS` -> Regex/Presidio
+        *   `PHONE_NUMBER` -> Regex/Presidio
+        *   `SSN` -> Regex
+        *   `CREDIT_CARD` -> Regex/Presidio
 4.  **Encryption:** Apply AES encryption to the identified PII values. The Output will be a base64 encoded ciphertext.
 5.  **Output:** Write the masked (encrypted) DataFrame to **S3 in Parquet format**.
 6.  **Upload:** Save to `s3://<project-name>-masked/`.
@@ -95,6 +104,10 @@ This project demonstrates proficiency in **Cloud Computing (AWS)**, **Big Data P
 | **Security/Crypto** | `Python Cryptography` library (Fernet/AES) inside Spark UDFs |
 | **PII Detection** | `Microsoft Presidio` |
 | **Configuration** | `python-dotenv` |
+| **Orchestration** | **Apache Airflow** (Docker/MWAA) |
+| **Infrastructure** | Terraform / AWS CLI |
+| **Local Emulation** | **LocalStack** (S3 mocking) |
+| **Containerization** | Docker |
 
 ---
 
@@ -103,6 +116,7 @@ This project demonstrates proficiency in **Cloud Computing (AWS)**, **Big Data P
 *   **Input Bucket:** `s3://<project-name>-raw/`
 *   **Output Bucket (Masked):** `s3://<project-name>-masked/` (Parquet)
 *   **Output Bucket (Demasked):** `s3://<project-name>-restored/`
+*   **Quarantine Bucket (DLQ):** `s3://<project-name>-quarantine/` (For failed/malformed files)
 
 ---
 
@@ -112,14 +126,15 @@ This project demonstrates proficiency in **Cloud Computing (AWS)**, **Big Data P
 |--------|-------------|
 | **Scalability** | Distributed encryption via Spark. |
 | **Security** | **Key Management is paramount.** If the key is lost, data is lost. |
-| **Reliability** | Retries on network errors. |
+| **Reliability** | Retries on network errors; Dead Letter Queue isolation for bad data. |
+| **Observability** | Structured JSON logging compatible with CloudWatch. |
 
 ---
 
 ## 8. Failure Management
 
 *   **Decryption Failure:** If a field cannot be decrypted (wrong key or corrupted data), flag it as `[ERROR]` or keep ciphertext.
-*   **Malformed data:** Log error and skip.
+*   **Malformed data:** Log error using **Structured Logging** and move file to **Quarantine Bucket (DLQ)**.
 *   **Schema Mismatch:** If incoming XML schema changes significantly (new nested structures), the pipeline should fail gracefully or alert.
 
 ---
