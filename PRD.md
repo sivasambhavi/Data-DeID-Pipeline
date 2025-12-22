@@ -7,7 +7,17 @@
 
 ---
 
-## 1. Introduction
+
+---
+
+## 1. Project Metadata
+*   **Repository:** `https://github.com/sivasambhavi/Data-DeID-Pipeline`
+*   **Version Control:** GitHub
+*   **Collaborators:**
+    *   Owner: `sivasambhavi`
+    *   Contributor: `aparna-boda`
+
+## 2. Introduction
 
 ### Objective
 To design and implement a scalable, automated pipeline that ingests XML datasets from an AWS S3 bucket, accurately identifies Personally Identifiable Information (PII) within the data, and generates masked versions of the datasets in **Parquet format** back to a secure S3 location. The system must support **reversible encryption** (demasking) to restore original values for authorized users.
@@ -98,7 +108,7 @@ This project demonstrates proficiency in **Cloud Computing (AWS)**, **Big Data P
 | Layer | Tools |
 |------|------|
 | **Cloud Provider** | AWS (S3) |
-| **Big Data Processing** | **Apache Spark (PySpark)** |
+| **Big Data Processing** | **AWS EMR** (PySpark 3.x) |
 | **Input Processing** | `spark-xml` (Maven: `com.databricks:spark-xml`) |
 | **Output Processing** | Built-in Spark Parquet writer |
 | **Security/Crypto** | `Python Cryptography` library (Fernet/AES) inside Spark UDFs |
@@ -106,8 +116,8 @@ This project demonstrates proficiency in **Cloud Computing (AWS)**, **Big Data P
 | **Configuration** | `python-dotenv` |
 | **Orchestration** | **Apache Airflow** (Docker/MWAA) |
 | **Infrastructure** | Terraform / AWS CLI |
-| **Local Emulation** | **LocalStack** (S3 mocking) |
-| **Containerization** | Docker |
+| **Local Emulation** | **LocalStack** (S3 mocking) / **Docker** (Spark Local) |
+| **Containerization** | Docker (for Airflow) |
 
 ---
 

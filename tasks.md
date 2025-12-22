@@ -5,8 +5,10 @@
 ### Phase 1: Setup
 - [ ] Initialize Python project and create virtual environment <!-- id: 0 -->
 - [ ] Install dependencies: `pyspark`, `boto3`, `faker`, `presidio-analyzer`, `cryptography` <!-- id: 1 -->
+- [ ] Set up **Docker Compose** with **Airflow** and **LocalStack** <!-- id: 22 -->
 - [ ] Verify local Spark installation and "Hello World" Spark session <!-- id: 2 -->
-- [ ] Configure `boto3` for S3 access (check `.env` setup) <!-- id: 3 -->
+- [ ] Configure `boto3` for S3 access (check `.env` setup) to support **LocalStack** endpoint <!-- id: 3 -->
+- [ ] Initialize Terraform `main.tf` for S3 Buckets and **EMR Cluster** (`emr.tf`) <!-- id: 20 -->
 - [ ] Generate and store Symmetric Encryption Key (Fernet) <!-- id: 16 -->
 
 ### Phase 2: Data & Ingestion
@@ -24,9 +26,10 @@
 
 ### Phase 4: Output & Integration
 - [ ] Implement Spark **Parquet** writer logic <!-- id: 11 -->
-- [ ] Create `pipeline_fwd.py` (Masking) to orchestrate List -> Process -> Upload <!-- id: 12 -->
-- [ ] Create `pipeline_rev.py` (Demasking) to orchestrate Masked -> Process -> Restored <!-- id: 18 -->
-- [ ] Add logging to pipeline <!-- id: 13 -->
+- [ ] Create `masking_dag.py` in Airflow using `EmrAddStepOperator` <!-- id: 12 -->
+- [ ] Create `restoration_dag.py` in Airflow using `EmrAddStepOperator` <!-- id: 18 -->
+- [ ] Add Structured JSON Logging to pipeline <!-- id: 13 -->
+- [ ] Implement DLQ Logic (Quarantine Bucket move) for failed files <!-- id: 21 -->
 
 ### Phase 5: Additional
 - [ ] Write unit tests for encryption/decryption roundtrip <!-- id: 14 -->

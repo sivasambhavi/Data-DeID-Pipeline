@@ -6,9 +6,11 @@ This document outlines the step-by-step implementation plan for the Cloud-Native
 
 - [ ] **Project Structure Setup**
     - Initialize Git repository (if not already done).
-    - Create directory structure: `src/`, `tests/`, `config/`, `data/input`, `data/output`.
+    - Create directory structure: `src/`, `tests/`, `config/`, `data/input`, `data/output`, `dags/`.
     - Create virtual environment and `requirements.txt`.
-    - Install core dependencies: `pyspark`, `boto3`, `python-dotenv`, `presidio-analyzer`, `cryptography`.
+    - Install core dependencies: `pyspark`, `boto3`, `python-dotenv`, `presidio-analyzer`, `cryptography`, `apache-airflow`.
+    - **Airflow & LocalStack Setup:** Configure `docker-compose.yaml` to include **Airflow** and **LocalStack** services.
+    - Configure `aws-cli-local` or setup environment variables to point `boto3` to localhost (e.g., `endpoint_url='http://localhost:4566'`).
 
 - [ ] **Spark Configuration**
     - Install Java (JDK 8/11) locally if needed for Spark.
@@ -22,10 +24,13 @@ This document outlines the step-by-step implementation plan for the Cloud-Native
     - Store the key safely in `.env` (not committed to git).
     - Create a configuration module to load the key during runtime.
 
-- [ ] **AWS Configuration**
+- [ ] **AWS Configuration & Infrastructure (IaC)**
     - Set up AWS IAM user with S3 read/write permissions.
     - Configure local AWS credentials (use `.env` for secrets).
-    - Create S3 buckets: `odip-xml-raw`, `odip-xml-masked`, `odip-xml-restored`.
+    - **Terraform:**
+        - Create `s3.tf` for buckets (`raw`, `masked`, `restored`, `quarantine`).
+        - Create `emr.tf` to provision **AWS EMR Cluster** (Master/Core nodes, Spark installed).
+        - Create `iam.tf` for EMR EC2 instance profiles and roles.
 
 ## Phase 2: Data Ingestion (S3 & XML)
 
@@ -61,9 +66,13 @@ This document outlines the step-by-step implementation plan for the Cloud-Native
 
 ## Phase 4: Pipeline Assembly & Integration
 
-- [ ] **End-to-End Pipeline Script (Forward)**
-    - Combine Ingestion -> Detect -> Encrypt -> Output (Parquet) steps.
-    - Save result to `masked` S3 bucket.
+- [ ] **Airflow Orchestration (DAGs)**
+    - **DAG 1 (Forward):** Define a DAG to trigger the Masking **EMR Step**.
+    - **DAG 2 (Reverse):** Define a DAG to trigger the Demasking **EMR Step**.
+    - Implement `EmrAddStepOperator` and `EmrStepSensor` to submit and monitor jobs.
+    - **Script Upload:** Add task to upload PySpark scripts to `s3://.../scripts/` before execution.
+    - **Error Handling:** Implement catch blocks to move malformed data and move to `quarantine` bucket.
+    - **Logging:** Implement structured JSON logging.
 
 - [ ] **Restoration Pipeline Script (Reverse)**
     - Combine Ingestion (Masked Parquet S3) -> Decrypt -> Output (CSV/XML) steps.
